@@ -1,4 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "/api" : "http://localhost:3001/api");
+import { API_BASE_URL } from "../config";
+
+const API_BASE = `${API_BASE_URL}/api`;
 
 // Helper to make API calls
 async function apiCall(endpoint, options = {}) {
@@ -43,8 +45,7 @@ async function apiCall(endpoint, options = {}) {
 
 // Warehouse API
 export async function saveWarehouseEntry(date, product, quantity) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/warehouse`, {
+  const response = await fetch(`${API_BASE_URL}/api/warehouse`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -62,8 +63,7 @@ export async function saveWarehouseEntry(date, product, quantity) {
 
 // Produced API
 export async function saveProducedEntry(date, product, qty) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/produced`, {
+  const response = await fetch(`${API_BASE_URL}/api/produced`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,8 +81,7 @@ export async function saveProducedEntry(date, product, qty) {
 
 // Sent to Shop API
 export async function saveSentToShopEntry(date, product, quantity) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/sent-to-shop`, {
+  const response = await fetch(`${API_BASE_URL}/api/sent-to-shop`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -100,8 +99,7 @@ export async function saveSentToShopEntry(date, product, quantity) {
 
 // Get Sent to Shop entries (for history later)
 export async function getSentToShopEntries() {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/sent-to-shop`);
+  const response = await fetch(`${API_BASE_URL}/api/sent-to-shop`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -113,8 +111,7 @@ export async function getSentToShopEntries() {
 
 // Sold API
 export async function saveSoldEntry(date, product, qty) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/sold`, {
+  const response = await fetch(`${API_BASE_URL}/api/sold`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -132,8 +129,7 @@ export async function saveSoldEntry(date, product, qty) {
 
 // History API
 export async function fetchHistory() {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/history`);
+  const response = await fetch(`${API_BASE_URL}/api/history`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -149,7 +145,7 @@ export async function fetchDashboardData() {
 }
 
 export async function fetchDashboardSummary() {
-  const response = await fetch("http://localhost:3001/dashboard/summary");
+  const response = await fetch(`${API_BASE_URL}/api/dashboard`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -160,8 +156,7 @@ export async function fetchDashboardSummary() {
 
 // Planned API - returns only active products
 export async function fetchPlannedProducts() {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/planned`);
+  const response = await fetch(`${API_BASE_URL}/api/planned`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -173,8 +168,7 @@ export async function fetchPlannedProducts() {
 
 // Products API
 export async function fetchAllProducts() {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/products`);
+  const response = await fetch(`${API_BASE_URL}/api/products`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -185,8 +179,7 @@ export async function fetchAllProducts() {
 }
 
 export async function deactivateProduct(productName) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/products/deactivate`, {
+  const response = await fetch(`${API_BASE_URL}/api/products/deactivate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -203,8 +196,7 @@ export async function deactivateProduct(productName) {
 }
 
 export async function reactivateProduct(productName) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/products/reactivate`, {
+  const response = await fetch(`${API_BASE_URL}/api/products/reactivate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -221,8 +213,7 @@ export async function reactivateProduct(productName) {
 }
 
 export async function savePlannedEntry(product, planned) {
-  const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-  const response = await fetch(`${apiBase}/api/planned`, {
+  const response = await fetch(`${API_BASE_URL}/api/planned`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

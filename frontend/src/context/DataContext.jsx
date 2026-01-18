@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE_URL } from "../config";
 
 const DataContext = createContext();
 
@@ -11,8 +12,7 @@ export function DataProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const apiBase = import.meta.env.VITE_API_BASE || (import.meta.env.PROD ? "" : "http://localhost:3001");
-      const response = await fetch(`${apiBase}/api/dashboard`);
+      const response = await fetch(`${API_BASE_URL}/api/dashboard`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
