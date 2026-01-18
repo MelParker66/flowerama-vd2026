@@ -1,0 +1,30 @@
+{
+  "Spring Mix Mason Jars": {
+    "planned": 72,
+    "active": true
+  },
+  "Test Product": {
+    "planned": 10,
+    "active": true
+  },
+  "100 Rose": {
+    "planned": 2,
+    "active": true
+  },
+  "Brilliant Beauty SM": {
+    "planned": 8,
+    "active": true
+  },
+  "unnamed new product": {
+    "planned": 0,
+    "active": false
+  },
+  "unnnamed new": {
+    "planned": 200,
+    "active": false
+  },
+  "3 Rose Premium w/Stargazer": {
+    "planned": 30,
+    "active": true
+  }
+}
