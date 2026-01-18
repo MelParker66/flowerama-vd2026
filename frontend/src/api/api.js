@@ -1,10 +1,8 @@
 import { API_BASE_URL } from "../config";
 
-const API_BASE = `${API_BASE_URL}/api`;
-
 // Helper to make API calls
 async function apiCall(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
   const config = {
     headers: {
       "Content-Type": "application/json",
@@ -45,7 +43,7 @@ async function apiCall(endpoint, options = {}) {
 
 // Warehouse API
 export async function saveWarehouseEntry(date, product, quantity) {
-  const response = await fetch(`${API_BASE_URL}/api/warehouse`, {
+  const response = await fetch(`${API_BASE_URL}/warehouse`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +61,7 @@ export async function saveWarehouseEntry(date, product, quantity) {
 
 // Produced API
 export async function saveProducedEntry(date, product, qty) {
-  const response = await fetch(`${API_BASE_URL}/api/produced`, {
+  const response = await fetch(`${API_BASE_URL}/produced`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -81,7 +79,7 @@ export async function saveProducedEntry(date, product, qty) {
 
 // Sent to Shop API
 export async function saveSentToShopEntry(date, product, quantity) {
-  const response = await fetch(`${API_BASE_URL}/api/sent-to-shop`, {
+  const response = await fetch(`${API_BASE_URL}/sent-to-shop`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -99,7 +97,7 @@ export async function saveSentToShopEntry(date, product, quantity) {
 
 // Get Sent to Shop entries (for history later)
 export async function getSentToShopEntries() {
-  const response = await fetch(`${API_BASE_URL}/api/sent-to-shop`);
+  const response = await fetch(`${API_BASE_URL}/sent-to-shop`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -111,7 +109,7 @@ export async function getSentToShopEntries() {
 
 // Sold API
 export async function saveSoldEntry(date, product, qty) {
-  const response = await fetch(`${API_BASE_URL}/api/sold`, {
+  const response = await fetch(`${API_BASE_URL}/sold`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -129,7 +127,7 @@ export async function saveSoldEntry(date, product, qty) {
 
 // History API
 export async function fetchHistory() {
-  const response = await fetch(`${API_BASE_URL}/api/history`);
+  const response = await fetch(`${API_BASE_URL}/history`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -145,7 +143,7 @@ export async function fetchDashboardData() {
 }
 
 export async function fetchDashboardSummary() {
-  const response = await fetch(`${API_BASE_URL}/api/dashboard`);
+  const response = await fetch(`${API_BASE_URL}/dashboard`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -156,7 +154,7 @@ export async function fetchDashboardSummary() {
 
 // Planned API - returns only active products
 export async function fetchPlannedProducts() {
-  const response = await fetch(`${API_BASE_URL}/api/planned`);
+  const response = await fetch(`${API_BASE_URL}/planned`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -168,7 +166,7 @@ export async function fetchPlannedProducts() {
 
 // Products API
 export async function fetchAllProducts() {
-  const response = await fetch(`${API_BASE_URL}/api/products`);
+  const response = await fetch(`${API_BASE_URL}/products`);
   
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
@@ -179,7 +177,7 @@ export async function fetchAllProducts() {
 }
 
 export async function deactivateProduct(productName) {
-  const response = await fetch(`${API_BASE_URL}/api/products/deactivate`, {
+  const response = await fetch(`${API_BASE_URL}/products/deactivate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -196,7 +194,7 @@ export async function deactivateProduct(productName) {
 }
 
 export async function reactivateProduct(productName) {
-  const response = await fetch(`${API_BASE_URL}/api/products/reactivate`, {
+  const response = await fetch(`${API_BASE_URL}/products/reactivate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -213,7 +211,7 @@ export async function reactivateProduct(productName) {
 }
 
 export async function savePlannedEntry(product, planned) {
-  const response = await fetch(`${API_BASE_URL}/api/planned`, {
+  const response = await fetch(`${API_BASE_URL}/planned`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

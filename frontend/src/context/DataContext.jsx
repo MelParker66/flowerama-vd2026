@@ -12,7 +12,7 @@ export function DataProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/dashboard`);
+      const response = await fetch(`${API_BASE_URL}/dashboard`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
