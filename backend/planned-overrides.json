@@ -26,5 +26,9 @@
   "3 Rose Premium w/Stargazer": {
     "planned": 30,
     "active": true
+  },
+  "vvv": {
+    "planned": 1,
+    "active": true
   }
 }
