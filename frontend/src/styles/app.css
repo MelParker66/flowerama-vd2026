@@ -125,7 +125,8 @@ h2 { margin: 0 0 14px; font-size: 26px; }
 }
 
 .dashboardPage {
-  height: calc(100vh - 20px);
+  height: calc(100vh - 70px - 56px); /* 100vh - header (~70px) - main padding top+bottom (56px) */
+  max-height: calc(100vh - 70px - 56px);
   display: flex;
   flex-direction: column;
   overflow: hidden; /* THIS prevents page scroll */
@@ -141,6 +142,7 @@ h2 { margin: 0 0 14px; font-size: 26px; }
   overflow-y: auto;    /* ONLY place we allow vertical scroll */
   overflow-x: hidden;
   border-radius: 16px;
+  padding-bottom: 8px; /* Ensure last row is not clipped */
 }
 
 .dashboardTable {
