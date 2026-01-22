@@ -637,7 +637,7 @@ app.get("/api/dashboard", (req, res) => {
   // Get merged planned (Excel + overrides) - only active products
   const mergedPlanned = getMergedPlanned(false);
   
-  // Get all products to check active status
+  // Get all products to check active status - START FROM ALL ACTIVE PRODUCTS
   const allProductsData = getAllProducts();
   
   // Calculate totals from entries
@@ -645,19 +645,30 @@ app.get("/api/dashboard", (req, res) => {
   const sentToShopTotals = calculateTotalsByProduct(store.sentToShop);
   const soldTotals = calculateTotalsByProduct(store.sold);
   
-  // Build union of ALL product names across all sources, but filter to only active
-  const allProducts = new Set([
-    ...Object.keys(mergedPlanned),
+  // FIX: Start from ALL active products (not just those with activity)
+  // This ensures new products appear immediately, even with zero activity
+  const allActiveProducts = Object.keys(allProductsData).filter(product => {
+    const productData = allProductsData[product];
+    return !productData || productData.active !== false;
+  });
+  
+  // Also include any products from activity that might not be in allProductsData yet
+  const activityProducts = new Set([
     ...Object.keys(producedTotals),
     ...Object.keys(sentToShopTotals),
     ...Object.keys(soldTotals)
   ]);
   
-  // Filter to only active products
-  const activeProducts = Array.from(allProducts).filter(product => {
-    const productData = allProductsData[product];
-    return !productData || productData.active !== false;
-  });
+  // Union: all active products + any products from activity (filtered to active)
+  const allProducts = new Set([
+    ...allActiveProducts,
+    ...Array.from(activityProducts).filter(product => {
+      const productData = allProductsData[product];
+      return !productData || productData.active !== false;
+    })
+  ]);
+  
+  const activeProducts = Array.from(allProducts);
   
   activeProducts.forEach((product) => {
     // For each product:
@@ -729,7 +740,7 @@ app.get("/api/summary", (req, res) => {
   // Get merged planned (Excel + overrides) - only active products
   const mergedPlanned = getMergedPlanned(false);
   
-  // Get all products to check active status
+  // Get all products to check active status - START FROM ALL ACTIVE PRODUCTS
   const allProductsData = getAllProducts();
   
   // Calculate totals from entries
@@ -737,19 +748,30 @@ app.get("/api/summary", (req, res) => {
   const sentToShopTotals = calculateTotalsByProduct(store.sentToShop);
   const soldTotals = calculateTotalsByProduct(store.sold);
   
-  // Build union of ALL product names across all sources, but filter to only active
-  const allProducts = new Set([
-    ...Object.keys(mergedPlanned),
+  // FIX: Start from ALL active products (not just those with activity)
+  // This ensures new products appear immediately, even with zero activity
+  const allActiveProducts = Object.keys(allProductsData).filter(product => {
+    const productData = allProductsData[product];
+    return !productData || productData.active !== false;
+  });
+  
+  // Also include any products from activity that might not be in allProductsData yet
+  const activityProducts = new Set([
     ...Object.keys(producedTotals),
     ...Object.keys(sentToShopTotals),
     ...Object.keys(soldTotals)
   ]);
   
-  // Filter to only active products
-  const activeProducts = Array.from(allProducts).filter(product => {
-    const productData = allProductsData[product];
-    return !productData || productData.active !== false;
-  });
+  // Union: all active products + any products from activity (filtered to active)
+  const allProducts = new Set([
+    ...allActiveProducts,
+    ...Array.from(activityProducts).filter(product => {
+      const productData = allProductsData[product];
+      return !productData || productData.active !== false;
+    })
+  ]);
+  
+  const activeProducts = Array.from(allProducts);
   
   activeProducts.forEach((product) => {
     const planned = mergedPlanned[product] || 0;

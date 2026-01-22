@@ -137,6 +137,7 @@ h2 { margin: 0 0 14px; font-size: 26px; }
 
 .dashboardTableWrap {
   flex: 1 1 auto;
+  min-height: 0;      /* Required for flex scrolling to work properly */
   overflow-y: auto;    /* ONLY place we allow vertical scroll */
   overflow-x: hidden;
   border-radius: 16px;

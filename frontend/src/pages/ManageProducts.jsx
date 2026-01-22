@@ -13,7 +13,7 @@ export default function ManageProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const { refreshSummary } = useData();
+  const { refreshAll } = useData();
 
   // PIN gate: check on every mount (when tab is entered)
   useEffect(() => {
@@ -67,7 +67,8 @@ export default function ManageProducts() {
         text: `"${productName}" has been deactivated.` 
       });
       await loadProducts();
-      await refreshSummary();
+      // refreshAll() triggers dashboard refresh after deactivate
+      await refreshAll();
       window.dispatchEvent(new Event("dataUpdated"));
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (err) {
@@ -88,7 +89,8 @@ export default function ManageProducts() {
         text: `"${productName}" has been reactivated.` 
       });
       await loadProducts();
-      await refreshSummary();
+      // refreshAll() triggers dashboard refresh after deactivate
+      await refreshAll();
       window.dispatchEvent(new Event("dataUpdated"));
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (err) {

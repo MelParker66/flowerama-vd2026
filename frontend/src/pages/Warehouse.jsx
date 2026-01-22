@@ -16,7 +16,7 @@ export default function Warehouse() {
   const [quantity, setQuantity] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
   const [availableProducts, setAvailableProducts] = useState([]);
-  const { refreshSummary } = useData();
+  const { refreshAll } = useData();
   
   // Planned form state
   const [plannedProduct, setPlannedProduct] = useState("");
@@ -50,8 +50,8 @@ export default function Warehouse() {
       });
       setQuantity("");
       
-      // Trigger Dashboard refresh immediately
-      await refreshSummary();
+      // refreshAll() triggers dashboard refresh after warehouse entry
+      await refreshAll();
       
       // Clear success message after 3 seconds
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
@@ -93,8 +93,8 @@ export default function Warehouse() {
       const products = await fetchPlannedProducts();
       setAvailableProducts(products);
       
-      // Trigger Dashboard refresh
-      await refreshSummary();
+      // refreshAll() triggers dashboard refresh after planned update
+      await refreshAll();
       
       // Dispatch global refresh event
       window.dispatchEvent(new Event("dataUpdated"));

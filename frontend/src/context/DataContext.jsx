@@ -31,6 +31,12 @@ export function DataProvider({ children }) {
     }
   };
 
+  // refreshAll() - refreshes dashboard data (called after product create/deactivate/planned updates)
+  const refreshAll = async () => {
+    // refreshAll() triggers dashboard refresh
+    await refreshSummary();
+  };
+
   useEffect(() => {
     refreshSummary();
     
@@ -44,7 +50,7 @@ export function DataProvider({ children }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ summaryData, refreshSummary, loading, error }}>
+    <DataContext.Provider value={{ summaryData, refreshSummary, refreshAll, loading, error }}>
       {children}
     </DataContext.Provider>
   );
