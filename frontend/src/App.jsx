@@ -15,12 +15,6 @@ import ManageProducts from "./pages/ManageProducts";
 export default function App() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (window.location.pathname !== "/") {
-      navigate("/", { replace: true });
-    }
-  }, []);
-
   return (
     <div className="app-shell">
       <Header />
