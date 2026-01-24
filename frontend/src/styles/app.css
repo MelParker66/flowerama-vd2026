@@ -514,10 +514,11 @@ table td:nth-child(6) {
 .input, .textarea, select.input {
   border: 1px solid rgba(0,0,0,0.15);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 6px;
   font-size: 16px;
   outline: none;
-  color: #ffffff;
+  color: #000;
+  background-color: #fff;
 }
 
 .input::placeholder,
@@ -531,8 +532,8 @@ table td:nth-child(6) {
 /* Select input (collapsed) */
 select,
 select option {
-  color: #ffffff;
-  background-color: #3a3a3a;
+  color: #000;
+  background-color: #fff;
 }
 
 /* Hover / active option */
@@ -544,8 +545,8 @@ select option:checked {
 
 /* Firefox fix */
 select:-moz-focusring {
-  color: transparent;
-  text-shadow: 0 0 0 #ffffff;
+  color: #000;
+  text-shadow: 0 0 0 #000;
 }
 
 .textarea {
