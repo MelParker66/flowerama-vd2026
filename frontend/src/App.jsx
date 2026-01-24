@@ -1,3 +1,4 @@
+// Trigger Netlify rebuild
 import { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import "./styles/app.css";
