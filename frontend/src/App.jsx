@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import "./styles/app.css";
 
 import Header from "./components/Header";
@@ -12,6 +13,14 @@ import ManageProducts from "./pages/ManageProducts";
 
 
 export default function App() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (window.location.pathname !== "/") {
+      navigate("/", { replace: true });
+    }
+  }, []);
+
   return (
     <div className="app-shell">
       <Header />
