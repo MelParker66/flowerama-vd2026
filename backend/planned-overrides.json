@@ -1,34 +1,362 @@
 {
-  "Spring Mix Mason Jars": {
-    "planned": 72,
+  "3 Rose Premium w/Stargazer": {
+    "planned": 30,
     "active": true
   },
-  "Test Product": {
+  "6 Rose Premium w/Stargazer": {
+    "planned": 18,
+    "active": true
+  },
+  "Love's Embrace 6 Rose": {
+    "planned": 22,
+    "active": true
+  },
+  "6 Rose & Sunflower Vase": {
     "planned": 10,
+    "active": true
+  },
+  "Blooming Love S 12 Rose": {
+    "planned": 45,
+    "active": true
+  },
+  "Blooming Love L 18 Rose": {
+    "planned": 3,
+    "active": true
+  },
+  "Rose Elegance SM 12 Rose": {
+    "planned": 7,
+    "active": true
+  },
+  "Rose Elegance LG 18 Rose": {
+    "planned": 4,
+    "active": true
+  },
+  "Ultimate Elegance SM (2 DZ)": {
+    "planned": 5,
+    "active": true
+  },
+  "Ultimate Elegance MD (3 DZ)": {
+    "planned": 4,
+    "active": true
+  },
+  "Ultimate Elegance LG (4 DZ)": {
+    "planned": 1,
     "active": true
   },
   "100 Rose": {
     "planned": 2,
     "active": true
   },
+  "Contemporary Rose Red SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Contemporary Rosered MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Contemporary Rose Red LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Rainbow Rose Trio": {
+    "planned": 15,
+    "active": true
+  },
+  "Rainbow Rose Dozen": {
+    "planned": 4,
+    "active": true
+  },
+  "Alluring Beauty SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Alluring Beauty MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Alluring Beauty LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Always On My Mind-SM": {
+    "planned": 3,
+    "active": true
+  },
+  "Always On My Mind-MD": {
+    "planned": 3,
+    "active": true
+  },
+  "Always On My Mind-LG": {
+    "planned": 3,
+    "active": true
+  },
+  "Always On My Mind-XL": {
+    "planned": 3,
+    "active": true
+  },
   "Brilliant Beauty SM": {
+    "planned": 6,
+    "active": true
+  },
+  "Brilliant Beauty MD": {
+    "planned": 5,
+    "active": true
+  },
+  "Brilliant Beauty LG": {
+    "planned": 5,
+    "active": true
+  },
+  "Brilliant Beauty XL": {
+    "planned": 5,
+    "active": true
+  },
+  "Daydream Bouquet-SM": {
     "planned": 8,
     "active": true
   },
-  "unnamed new product": {
-    "planned": 0,
-    "active": false
+  "Daydream Bouquet-MD": {
+    "planned": 12,
+    "active": true
   },
-  "unnnamed new": {
-    "planned": 200,
-    "active": false
+  "Daydream Bouquet-LG": {
+    "planned": 10,
+    "active": true
   },
-  "3 Rose Premium w/Stargazer": {
+  "Daydream Bouquet-XL": {
+    "planned": 8,
+    "active": true
+  },
+  "Designer Dreams SM": {
+    "planned": 3,
+    "active": true
+  },
+  "Designer Dreams MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Designer Dreams LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Dreaming Of You": {
+    "planned": 12,
+    "active": true
+  },
+  "Elegant Blush-SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Elegant Blush-MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Elegant Blush-LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Elegant Blush-XL": {
+    "planned": 2,
+    "active": true
+  },
+  "Fields Of Europe Bliss-SM": {
+    "planned": 3,
+    "active": true
+  },
+  "Fields Of Europe Bliss-MD": {
+    "planned": 4,
+    "active": true
+  },
+  "Fields Of Europe Bliss-LG": {
+    "planned": 3,
+    "active": true
+  },
+  "Fields Of Europe Bliss-XL": {
+    "planned": 2,
+    "active": true
+  },
+  "Fields Of Europe Bliss-DX": {
+    "planned": 3,
+    "active": true
+  },
+  "Fields Of Europe Romance-SM": {
+    "planned": 21,
+    "active": true
+  },
+  "Fields Of Europe Romance MD": {
+    "planned": 21,
+    "active": true
+  },
+  "Fields Of Europe Romance-LG": {
     "planned": 30,
     "active": true
   },
-  "vvv": {
+  "Fields Of Europe Romance-XL": {
+    "planned": 15,
+    "active": true
+  },
+  "Floral Embrace-SM": {
+    "planned": 9,
+    "active": true
+  },
+  "Floral Embrace-MD": {
+    "planned": 7,
+    "active": true
+  },
+  "Floral Embrace-LG": {
+    "planned": 8,
+    "active": true
+  },
+  "Floral Embrace-XL": {
+    "planned": 4,
+    "active": true
+  },
+  "Floral Fantasy-SM": {
+    "planned": 5,
+    "active": true
+  },
+  "Floral Fantasy-MD": {
+    "planned": 3,
+    "active": true
+  },
+  "Floral Fantasy-LG": {
+    "planned": 8,
+    "active": true
+  },
+  "Floral Fantasy-XL": {
+    "planned": 2,
+    "active": true
+  },
+  "Honey Bee Buzz SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Honey Bee Buzz MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Honey Bee Buzz LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Key To My Heart-SM": {
+    "planned": 5,
+    "active": true
+  },
+  "Key To My Heart-MD": {
+    "planned": 5,
+    "active": true
+  },
+  "Key To My Heart-LG": {
+    "planned": 14,
+    "active": true
+  },
+  "Key To My Heart-XL": {
+    "planned": 10,
+    "active": true
+  },
+  "Love Pup": {
+    "planned": 20,
+    "active": true
+  },
+  "Lovely Lavender-SM": {
+    "planned": 6,
+    "active": true
+  },
+  "Lovely Lavender-MD": {
+    "planned": 13,
+    "active": true
+  },
+  "Lovely Lavender-LG": {
+    "planned": 7,
+    "active": true
+  },
+  "Lovely Lavender-XL": {
+    "planned": 5,
+    "active": true
+  },
+  "Nature's Charm SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Nature's Charm MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Nature's Charm LG": {
     "planned": 1,
+    "active": true
+  },
+  "Nature's Charm XL": {
+    "planned": 1,
+    "active": true
+  },
+  "Spring Sentiment SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Spring Sentiment MD": {
+    "planned": 3,
+    "active": true
+  },
+  "Spring Sentiment LG": {
+    "planned": 3,
+    "active": true
+  },
+  "Straight From The Heart-SM": {
+    "planned": 8,
+    "active": true
+  },
+  "Straight From The Heart-MD": {
+    "planned": 8,
+    "active": true
+  },
+  "Straight From The Heart-LG": {
+    "planned": 6,
+    "active": true
+  },
+  "Straight From The Heart-XL": {
+    "planned": 5,
+    "active": true
+  },
+  "Vibrant Harmony SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Harmony MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Harmony LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Floral Medley SM": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Floral Medley MD": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Floral Medley LG": {
+    "planned": 2,
+    "active": true
+  },
+  "Vibrant Floral Medley XL": {
+    "planned": 2,
+    "active": true
+  },
+  "Vivid Devotion SM": {
+    "planned": 3,
+    "active": true
+  },
+  "Vivid Devotion MD": {
+    "planned": 5,
+    "active": true
+  },
+  "Vivid Devotion LG": {
+    "planned": 3,
     "active": true
   }
 }
