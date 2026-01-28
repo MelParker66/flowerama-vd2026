@@ -257,8 +257,7 @@ const allowedOrigins = [
   'https://flowerama226.netlify.app'
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
+ origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
