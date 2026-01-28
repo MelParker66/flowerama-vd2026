@@ -11,11 +11,13 @@ const __dirname = path.dirname(__filename);
 
 // Override storage file path
 const OVERRIDES_FILE = path.join(__dirname, "planned-overrides.json");
-const app = express()
+const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'https://flowerama226.netlify.app'
-];app.use(cors({
+];
+
+app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
