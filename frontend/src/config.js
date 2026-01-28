@@ -1,4 +1,5 @@
 // frontend/src/config.js
 
-export const API_BASE_URL = "/api";
+// Use environment variable in production, fallback to "/api" for local dev
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
