@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 // Override storage file path
 const OVERRIDES_FILE = path.join(__dirname, "planned-overrides.json");
+const PRODUCTS_FILE = path.join(__dirname, "data", "products.json");
 const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
@@ -104,33 +105,41 @@ function getMergedPlanned(includeInactive = false) {
   return merged;
 }
 
-// Get all products with their active status
-function getAllProducts() {
-  const products = {};
-  // Start with Excel products (all active by default)
-  Object.keys(plannedByProduct).forEach(product => {
-    products[product] = {
-      planned: plannedByProduct[product],
-      active: true
-    };
-  });
-  // Apply overrides (which may include active flag)
-  Object.keys(overridesPlannedByProduct).forEach(product => {
-    const override = overridesPlannedByProduct[product];
-    if (typeof override === 'object') {
-      products[product] = {
-        planned: override.planned,
-        active: override.active !== undefined ? override.active : true
-      };
+// Load products from file
+function loadProducts() {
+  try {
+    if (fs.existsSync(PRODUCTS_FILE)) {
+      const data = fs.readFileSync(PRODUCTS_FILE, "utf8");
+      return JSON.parse(data);
     } else {
-      // Legacy format
-      products[product] = {
-        planned: override,
-        active: true
-      };
+      console.log(`[loadProducts] Products file not found, starting with empty products`);
+      return {};
     }
-  });
-  return products;
+  } catch (error) {
+    console.error("[loadProducts] Error loading products:", error);
+    return {};
+  }
+}
+
+// Save products to file
+function saveProducts(products) {
+  try {
+    // Ensure data directory exists
+    const dataDir = path.dirname(PRODUCTS_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+    fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2), "utf8");
+    console.log(`[saveProducts] Saved ${Object.keys(products).length} products`);
+  } catch (error) {
+    console.error("[saveProducts] Error saving products:", error);
+    throw error;
+  }
+}
+
+// Get all products with their active status (from file)
+function getAllProducts() {
+  return loadProducts();
 }
 
 function loadPlannedQuantities() {
@@ -251,6 +260,9 @@ function loadPlannedQuantities() {
 // Load planned quantities on startup
 loadPlannedQuantities();
 loadOverrides();
+
+// Load products from file on startup
+loadProducts();
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -464,7 +476,7 @@ app.delete("/api/planned/:product", (req, res) => {
   });
 });
 
-// Products GET - return all products with active status
+// Products GET - return all products with active status (from file)
 app.get("/api/products", (req, res) => {
   const products = getAllProducts();
   const productList = Object.keys(products).map(product => ({
@@ -476,6 +488,44 @@ app.get("/api/products", (req, res) => {
     ok: true,
     products: productList
   });
+});
+
+// Products POST - save all products to file
+app.post("/api/products/save", (req, res) => {
+  const { products } = req.body;
+  
+  // Validate
+  if (!products || typeof products !== "object") {
+    return res.status(400).json({ ok: false, error: "Products object is required" });
+  }
+  
+  // Validate structure: each product should have planned and active
+  const productKeys = Object.keys(products);
+  for (const productName of productKeys) {
+    const product = products[productName];
+    if (typeof product !== "object" || product === null) {
+      return res.status(400).json({ ok: false, error: `Invalid product data for "${productName}"` });
+    }
+    if (typeof product.planned !== "number" || isNaN(product.planned)) {
+      return res.status(400).json({ ok: false, error: `Invalid planned quantity for "${productName}"` });
+    }
+    if (typeof product.active !== "boolean") {
+      return res.status(400).json({ ok: false, error: `Invalid active status for "${productName}"` });
+    }
+  }
+  
+  // Save to file
+  try {
+    saveProducts(products);
+    res.json({
+      ok: true,
+      message: `Saved ${productKeys.length} products`,
+      count: productKeys.length
+    });
+  } catch (error) {
+    console.error("[POST /api/products/save] Error saving products:", error);
+    return res.status(500).json({ ok: false, error: "Failed to save products" });
+  }
 });
 
 // Products POST - deactivate a product
