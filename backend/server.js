@@ -256,6 +256,7 @@ app.use(express.json());
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({ ok: true });
+});
 
 app.get("/api/health", (req, res) => {
   res.status(200).json({ ok: true, message: "backend live" });
