@@ -239,14 +239,18 @@ loadOverrides();
 
 // CORS configuration - allow frontend at localhost:5173 and Netlify
 const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL,
-  process.env.NETLIFY_URL
-].filter(Boolean);
+  'http://localhost:5173',
+  'https://flowerama226.netlify.app'
+];
 
 app.use(cors({
-  origin: allowedOrigins.length > 0 ? allowedOrigins : "*",
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 
 // Parse JSON request bodies

@@ -9,7 +9,7 @@
   },
   "Love's Embrace 6 rose": {
     "planned": 22,
-    "active": true
+    "active": false
   },
   "6 Rose & Sunflower Vase": {
     "planned": 10,
@@ -357,6 +357,182 @@
   },
   "Vivid Devotion LG": {
     "planned": 3,
+    "active": true
+  },
+  "Delightfully Chic LG": {
+    "planned": 2,
+    "active": false
+  },
+  "Delightfully Chic MD": {
+    "planned": 2,
+    "active": false
+  },
+  "Delightfully Chic SM": {
+    "planned": 2,
+    "active": false
+  },
+  "Elegant Beauty - LG": {
+    "planned": 5,
+    "active": false
+  },
+  "Elegant Beauty - SM": {
+    "planned": 6,
+    "active": false
+  },
+  "Flirty Fun LG": {
+    "planned": 3,
+    "active": false
+  },
+  "Flirty Fun MD": {
+    "planned": 3,
+    "active": false
+  },
+  "Flirty Fun SM": {
+    "planned": 2,
+    "active": false
+  },
+  "Lavender Expressions LG": {
+    "planned": 2,
+    "active": false
+  },
+  "Lavender Expressions MD": {
+    "planned": 2,
+    "active": false
+  },
+  "Lavender Expressions SM": {
+    "planned": 2,
+    "active": false
+  },
+  "Lavish in Lavender LG": {
+    "planned": 3,
+    "active": false
+  },
+  "Lavish In Lavender MD": {
+    "planned": 3,
+    "active": false
+  },
+  "Lavish In Lavender SM": {
+    "planned": 3,
+    "active": false
+  },
+  "Lavish In Lavender XL": {
+    "planned": 2,
+    "active": false
+  },
+  "Modern Radiance LG": {
+    "planned": 1,
+    "active": false
+  },
+  "Modern Radiance MD": {
+    "planned": 2,
+    "active": false
+  },
+  "Modern Radiance SM": {
+    "planned": 2,
+    "active": false
+  },
+  "Modern Radiance XL": {
+    "planned": 1,
+    "active": false
+  },
+  "Ombre Roses": {
+    "planned": 4,
+    "active": false
+  },
+  "Rose Elegance Dozen": {
+    "planned": 7,
+    "active": false
+  },
+  "Splendid Beauty LG": {
+    "planned": 3,
+    "active": false
+  },
+  "Splendid Beauty MD": {
+    "planned": 3,
+    "active": false
+  },
+  "Splendid Beauty SM": {
+    "planned": 2,
+    "active": false
+  },
+  "Ultimate Elegance 2 DZ": {
+    "planned": 5,
+    "active": false
+  },
+  "Ultimate Elegance 3 DZ": {
+    "planned": 4,
+    "active": false
+  },
+  "Ultimate Elegance 4 DZ": {
+    "planned": 1,
+    "active": false
+  },
+  "Always on My Mind - Large": {
+    "planned": 3,
+    "active": false
+  },
+  "Always on My Mind - Medium": {
+    "planned": 3,
+    "active": false
+  },
+  "Always On My Mind - Small": {
+    "planned": 3,
+    "active": false
+  },
+  "Fields of Europe Bliss - Large": {
+    "planned": 4,
+    "active": false
+  },
+  "Fields of Europe Bliss - Medium": {
+    "planned": 4,
+    "active": false
+  },
+  "Fields of Europe Bliss - Small": {
+    "planned": 3,
+    "active": false
+  },
+  "Fields of Europe Romance - Large": {
+    "planned": 30,
+    "active": false
+  },
+  "Fields of Europe Romance - Medium": {
+    "planned": 22,
+    "active": false
+  },
+  "Sweet Petite": {
+    "planned": 72,
+    "active": true
+  },
+  "Fields of Europe Romance - Small": {
+    "planned": 22,
+    "active": false
+  },
+  "Floral Embrace - Large": {
+    "planned": 6,
+    "active": false
+  },
+  "Floral Embrace - Medium": {
+    "planned": 5,
+    "active": false
+  },
+  "Floral Embrace - Small": {
+    "planned": 6,
+    "active": false
+  },
+  "Lovely Lavender - Large": {
+    "planned": 6,
+    "active": false
+  },
+  "Lovely Lavender - Medium": {
+    "planned": 13,
+    "active": false
+  },
+  "Lovely Lavender - Small": {
+    "planned": 9,
+    "active": false
+  },
+  "Love's Embrace 6 Rose": {
+    "planned": 22,
     "active": true
   }
 }
