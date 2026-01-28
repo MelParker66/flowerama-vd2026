@@ -12,7 +12,21 @@ const __dirname = path.dirname(__filename);
 // Override storage file path
 const OVERRIDES_FILE = path.join(__dirname, "planned-overrides.json");
 
-const app = express();
+const app = express()
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://flowerama226.netlify.app'
+];app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 const PORT = process.env.PORT || 3001;
 
 // Load planned quantities from Excel file on server start
