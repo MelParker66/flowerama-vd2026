@@ -220,6 +220,24 @@ export async function reactivateProduct(productName) {
   return response.json();
 }
 
+export async function saveAllProducts(products) {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+  const response = await fetch(`${baseUrl}/api/products/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ products }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+    throw new Error(error.error || error.message || `HTTP ${response.status}`);
+  }
+  
+  return response.json();
+}
+
 export async function savePlannedEntry(product, planned) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   const response = await fetch(`${baseUrl}/api/planned`, {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllProducts, deactivateProduct, reactivateProduct } from "../api/api";
+import { fetchAllProducts, deactivateProduct, reactivateProduct, saveAllProducts } from "../api/api";
 import { useData } from "../context/DataContext";
 
 const CORRECT_PIN = "1232";
@@ -15,6 +15,7 @@ export default function ManageProducts() {
   const [message, setMessage] = useState({ type: "", text: "" });
   const [bulkMode, setBulkMode] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState(new Set());
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { refreshAll } = useData();
 
   // PIN gate: check on every mount (when tab is entered)
@@ -33,6 +34,7 @@ export default function ManageProducts() {
         a.product.localeCompare(b.product, undefined, { sensitivity: 'base' })
       );
       setProducts(sorted);
+      setHasUnsavedChanges(false); // Reset unsaved changes when loading fresh data
     } catch (err) {
       console.error("Failed to load products:", err);
       setError(err.message || "Failed to load products");
@@ -188,6 +190,48 @@ export default function ManageProducts() {
     }
   };
 
+  const handleToggleActive = (productName) => {
+    const updatedProducts = products.map(p => 
+      p.product === productName 
+        ? { ...p, active: !p.active }
+        : p
+    );
+    setProducts(updatedProducts);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleSaveChanges = async () => {
+    setMessage({ type: "", text: "" });
+    
+    // Convert products array to object format for backend
+    const productsObject = {};
+    products.forEach(p => {
+      productsObject[p.product] = {
+        planned: p.planned ?? 0,
+        active: p.active ?? true
+      };
+    });
+
+    try {
+      await saveAllProducts(productsObject);
+      setMessage({ 
+        type: "success", 
+        text: `All product changes have been saved.` 
+      });
+      setHasUnsavedChanges(false);
+      await loadProducts(); // Reload fresh data from backend
+      await refreshAll();
+      window.dispatchEvent(new Event("dataUpdated"));
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (err) {
+      console.error("Save failed:", err);
+      setMessage({ 
+        type: "error", 
+        text: err.message || "Failed to save changes. Please try again." 
+      });
+    }
+  };
+
   const handlePinSubmit = (e) => {
     e.preventDefault();
     if (pinInput === CORRECT_PIN) {
@@ -246,36 +290,47 @@ export default function ManageProducts() {
     <div className="card">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <h2 style={{ margin: 0 }}>Manage Products</h2>
-        {!bulkMode ? (
-          <button
-            className="btn danger"
-            onClick={() => setBulkMode(true)}
-            style={{ padding: "8px 16px", fontSize: "14px" }}
-          >
-            Bulk Deactivate
-          </button>
-        ) : (
-          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {hasUnsavedChanges && (
             <button
               className="btn primary"
-              onClick={handleBulkDeactivate}
+              onClick={handleSaveChanges}
               style={{ padding: "8px 16px", fontSize: "14px" }}
-              disabled={selectedProducts.size === 0}
             >
-              Deactivate Selected ({selectedProducts.size})
+              Save Changes
             </button>
+          )}
+          {!bulkMode ? (
             <button
-              className="btn"
-              onClick={() => {
-                setBulkMode(false);
-                setSelectedProducts(new Set());
-              }}
-              style={{ padding: "8px 16px", fontSize: "14px", background: "#6b7280", color: "#fff" }}
+              className="btn danger"
+              onClick={() => setBulkMode(true)}
+              style={{ padding: "8px 16px", fontSize: "14px" }}
             >
-              Cancel
+              Bulk Deactivate
             </button>
-          </div>
-        )}
+          ) : (
+            <>
+              <button
+                className="btn primary"
+                onClick={handleBulkDeactivate}
+                style={{ padding: "8px 16px", fontSize: "14px" }}
+                disabled={selectedProducts.size === 0}
+              >
+                Deactivate Selected ({selectedProducts.size})
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  setBulkMode(false);
+                  setSelectedProducts(new Set());
+                }}
+                style={{ padding: "8px 16px", fontSize: "14px", background: "#6b7280", color: "#fff" }}
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
       </div>
       
       {message.text && (
@@ -328,7 +383,14 @@ export default function ManageProducts() {
                   )}
                   <td className="col-product">{product.product}</td>
                   <td className="col-num col-planned">{product.planned ?? 0}</td>
-                  <td>{product.active ? "Yes" : "No"}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={product.active ?? false}
+                      onChange={() => handleToggleActive(product.product)}
+                      style={{ cursor: "pointer", width: "18px", height: "18px" }}
+                    />
+                  </td>
                   {!bulkMode && (
                     <td>
                       {product.active ? (
