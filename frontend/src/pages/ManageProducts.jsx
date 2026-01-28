@@ -13,6 +13,8 @@ export default function ManageProducts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
   const { refreshAll } = useData();
 
   // PIN gate: check on every mount (when tab is entered)
@@ -102,6 +104,90 @@ export default function ManageProducts() {
     }
   };
 
+  const handleBulkDeactivate = async () => {
+    const selectedArray = Array.from(selectedProducts);
+    if (selectedArray.length === 0) {
+      setMessage({ 
+        type: "error", 
+        text: "Please select at least one product to deactivate." 
+      });
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to deactivate ${selectedArray.length} product(s)? This will remove them from the Dashboard and form dropdowns.`)) {
+      return;
+    }
+
+    setMessage({ type: "", text: "" });
+    const errors = [];
+    let successCount = 0;
+
+    try {
+      // Deactivate each selected product
+      for (const productName of selectedArray) {
+        try {
+          await deactivateProduct(productName);
+          successCount++;
+        } catch (err) {
+          console.error(`Failed to deactivate ${productName}:`, err);
+          errors.push(productName);
+        }
+      }
+
+      // Reload products and refresh dashboard
+      await loadProducts();
+      await refreshAll();
+      window.dispatchEvent(new Event("dataUpdated"));
+
+      // Show success/error message
+      if (errors.length === 0) {
+        setMessage({ 
+          type: "success", 
+          text: `${successCount} product(s) have been deactivated.` 
+        });
+      } else {
+        setMessage({ 
+          type: "error", 
+          text: `${successCount} product(s) deactivated. Failed to deactivate: ${errors.join(", ")}` 
+        });
+      }
+
+      // Clear selection and exit bulk mode
+      setSelectedProducts(new Set());
+      setBulkMode(false);
+      
+      setTimeout(() => setMessage({ type: "", text: "" }), 5000);
+    } catch (err) {
+      console.error("Bulk deactivate failed:", err);
+      setMessage({ 
+        type: "error", 
+        text: err.message || "Failed to deactivate products. Please try again." 
+      });
+    }
+  };
+
+  const handleToggleSelect = (productName) => {
+    const newSelected = new Set(selectedProducts);
+    if (newSelected.has(productName)) {
+      newSelected.delete(productName);
+    } else {
+      newSelected.add(productName);
+    }
+    setSelectedProducts(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    // Only select active products
+    const activeProducts = products.filter(p => p.active).map(p => p.product);
+    if (selectedProducts.size === activeProducts.length) {
+      // Deselect all
+      setSelectedProducts(new Set());
+    } else {
+      // Select all active
+      setSelectedProducts(new Set(activeProducts));
+    }
+  };
+
   const handlePinSubmit = (e) => {
     e.preventDefault();
     if (pinInput === CORRECT_PIN) {
@@ -158,7 +244,39 @@ export default function ManageProducts() {
 
   return (
     <div className="card">
-      <h2>Manage Products</h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h2 style={{ margin: 0 }}>Manage Products</h2>
+        {!bulkMode ? (
+          <button
+            className="btn danger"
+            onClick={() => setBulkMode(true)}
+            style={{ padding: "8px 16px", fontSize: "14px" }}
+          >
+            Bulk Deactivate
+          </button>
+        ) : (
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <button
+              className="btn primary"
+              onClick={handleBulkDeactivate}
+              style={{ padding: "8px 16px", fontSize: "14px" }}
+              disabled={selectedProducts.size === 0}
+            >
+              Deactivate Selected ({selectedProducts.size})
+            </button>
+            <button
+              className="btn"
+              onClick={() => {
+                setBulkMode(false);
+                setSelectedProducts(new Set());
+              }}
+              style={{ padding: "8px 16px", fontSize: "14px", background: "#6b7280", color: "#fff" }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
       
       {message.text && (
         <div className={`message ${message.type === "success" ? "success" : "error"}`}>
@@ -174,37 +292,64 @@ export default function ManageProducts() {
             <table className="table">
             <thead>
               <tr>
+                {bulkMode && (
+                  <th style={{ width: "40px" }}>
+                    <input
+                      type="checkbox"
+                      checked={products.filter(p => p.active).length > 0 && 
+                               selectedProducts.size === products.filter(p => p.active).length}
+                      onChange={handleSelectAll}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </th>
+                )}
                 <th>Product</th>
                 <th className="col-num col-planned">Planned</th>
                 <th>Active</th>
-                <th>Actions</th>
+                {!bulkMode && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
                 <tr key={product.product}>
+                  {bulkMode && (
+                    <td>
+                      {product.active ? (
+                        <input
+                          type="checkbox"
+                          checked={selectedProducts.has(product.product)}
+                          onChange={() => handleToggleSelect(product.product)}
+                          style={{ cursor: "pointer" }}
+                        />
+                      ) : (
+                        <span style={{ color: "#9ca3af" }}>—</span>
+                      )}
+                    </td>
+                  )}
                   <td className="col-product">{product.product}</td>
                   <td className="col-num col-planned">{product.planned ?? 0}</td>
                   <td>{product.active ? "Yes" : "No"}</td>
-                  <td>
-                    {product.active ? (
-                      <button
-                        className="btn danger"
-                        onClick={() => handleDeactivate(product.product)}
-                        style={{ padding: "6px 12px", fontSize: "14px" }}
-                      >
-                        Deactivate
-                      </button>
-                    ) : (
-                      <button
-                        className="btn primary"
-                        onClick={() => handleReactivate(product.product)}
-                        style={{ padding: "6px 12px", fontSize: "14px" }}
-                      >
-                        Reactivate
-                      </button>
-                    )}
-                  </td>
+                  {!bulkMode && (
+                    <td>
+                      {product.active ? (
+                        <button
+                          className="btn danger"
+                          onClick={() => handleDeactivate(product.product)}
+                          style={{ padding: "6px 12px", fontSize: "14px" }}
+                        >
+                          Deactivate
+                        </button>
+                      ) : (
+                        <button
+                          className="btn primary"
+                          onClick={() => handleReactivate(product.product)}
+                          style={{ padding: "6px 12px", fontSize: "14px" }}
+                        >
+                          Reactivate
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
