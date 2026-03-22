@@ -202,6 +202,17 @@ export async function deactivateProduct(productName) {
   return response.json();
 }
 
+export async function deleteProduct(productName) {
+  const response = await fetch(`/api/products/${encodeURIComponent(productName)}`, {
+    method: "DELETE"
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP ${response.status}`);
+  }
+  return data;
+}
+
 export async function reactivateProduct(productName) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
   const response = await fetch(`${baseUrl}/api/products/reactivate`, {
@@ -218,6 +229,21 @@ export async function reactivateProduct(productName) {
   }
   
   return response.json();
+}
+
+export async function uploadProducts(file) {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await fetch(`${baseUrl}/api/upload-products`, {
+    method: "POST",
+    body: formData
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `HTTP ${response.status}`);
+  }
+  return data;
 }
 
 export async function saveAllProducts(products) {

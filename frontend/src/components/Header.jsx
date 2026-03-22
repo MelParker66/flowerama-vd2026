@@ -5,8 +5,7 @@ export default function Header() {
     <header className="topBar">
       <div className="topBarInner">
         <div className="brand">
-          <span className="brandTitle">FLOWERAMA Valentines Day 2026</span>
-          <span className="brandSub">(We got this!)</span>
+          <span className="brandTitle">FLOWERAMA Production Dashboard</span>
         </div>
         <NavTabs />
       </div>

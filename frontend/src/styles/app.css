@@ -483,6 +483,11 @@ table td:nth-child(6) {
   box-shadow: 0 8px 28px rgba(0,0,0,0.08);
 }
 
+/* Manage Products page: slightly wider container */
+.manage-products-card {
+  max-width: 1200px;
+}
+
 .page-title {
   margin: 0 0 6px;
   font-size: 40px;
