@@ -1,10 +1,13 @@
 import express from "express";
 import cors from "cors";
+import multer from "multer";
 import { store } from "./store.js";
 import XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -584,6 +587,99 @@ app.post("/api/products/reactivate", (req, res) => {
   res.json({ ok: true });
 });
 
+// Products DELETE - remove product from products.json (soft delete)
+app.delete("/api/products/:name", (req, res) => {
+  const decodedName = decodeURIComponent(req.params.name || "").trim();
+  if (!decodedName) {
+    return res.status(400).json({ success: false, error: "Product name is required" });
+  }
+
+  const products = loadProducts();
+  if (!(decodedName in products)) {
+    return res.status(404).json({ success: false, error: "Product not found" });
+  }
+
+  delete products[decodedName];
+  try {
+    saveProducts(products);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("[DELETE /api/products/:name] Error:", error);
+    return res.status(500).json({ success: false, error: "Failed to delete product" });
+  }
+});
+
+function normalizeName(name) {
+  if (!name) return "";
+  return name
+    .normalize("NFKC")
+    .replace(/\s+/g, " ")
+    .replace(/[\u2018\u2019]/g, "'")
+    .trim()
+    .toLowerCase();
+}
+
+// Products POST - upload products from .xlsx file (multer file upload)
+app.post("/api/upload-products", upload.single("file"), (req, res) => {
+  if (!req.file || !req.file.buffer) {
+    return res.status(400).json({ success: false, error: "No file uploaded. Send file under key 'file'." });
+  }
+  const ext = path.extname(req.file.originalname || "").toLowerCase();
+  if (ext !== ".xlsx" && ext !== ".xls") {
+    return res.status(400).json({ success: false, error: "File must be .xlsx or .xls" });
+  }
+
+  try {
+    const workbook = XLSX.read(req.file.buffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const rowsAsArrays = XLSX.utils.sheet_to_json(worksheet, { header: false, defval: "" });
+
+    const productCol = 0;
+    const plannedCol = 1;
+
+    // Build a completely fresh product list from the spreadsheet
+    const productsObject = {};
+
+    rowsAsArrays.forEach((row) => {
+      const values = Array.isArray(row) ? row : Object.values(row);
+      const rawName = String(values[productCol] || "").trim();
+      const planned = Number(values[plannedCol]);
+
+      if (!rawName || isNaN(planned) || planned < 0) return;
+
+      const norm = normalizeName(rawName);
+
+      if (!productsObject[norm]) {
+        productsObject[norm] = {
+          displayName: rawName,
+          planned: 0,
+          active: true
+        };
+      }
+
+      productsObject[norm].planned += planned;
+    });
+
+    // Convert to standard schema: { [displayName]: { planned, active } }
+    const toSave = {};
+    Object.values(productsObject).forEach((p) => {
+      toSave[p.displayName] = { planned: p.planned, active: p.active };
+    });
+
+    const count = Object.keys(toSave).length;
+    if (count === 0) {
+      return res.status(400).json({ success: false, error: "No valid product rows found in Excel file." });
+    }
+
+    saveProducts(toSave);
+    res.json({ success: true, count });
+  } catch (error) {
+    console.error("[POST /api/upload-products] Error:", error);
+    return res.status(500).json({ success: false, error: error.message || "Failed to process upload" });
+  }
+});
+
 // Helper function to add history events (APPEND-ONLY - never clears existing history)
 // WHITELIST: Only Warehouse, Sent to Shop, and Shop can write history
 // Manage Products actions are NOT tracked in history
@@ -687,11 +783,8 @@ app.get("/api/dashboard", (req, res) => {
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   
-  // Get merged planned (Excel + overrides) - only active products
-  const mergedPlanned = getMergedPlanned(false);
-  
-  // Get all products to check active status - START FROM ALL ACTIVE PRODUCTS
-  const allProductsData = getAllProducts();
+  // Spreadsheet values from products.json
+  const allProductsData = loadProducts();
   
   // Calculate totals from entries
   const producedTotals = calculateTotalsByProduct(store.produced);
@@ -724,20 +817,19 @@ app.get("/api/dashboard", (req, res) => {
   const activeProducts = Array.from(allProducts);
   
   activeProducts.forEach((product) => {
-    // For each product:
-    const planned = mergedPlanned[product] || 0;
+    const displayName = allProductsData[product]?.displayName || product;
+
+    const planned = allProductsData[product]?.planned ?? 0;
+
     const produced = producedTotals[product] || 0;
     const sentToShop = sentToShopTotals[product] || 0;
     const sold = soldTotals[product] || 0;
-    
-    // Calculate:
+
     const net = produced - sentToShop - sold;
     const aheadBehind = produced - planned;
-    
-    // dateModified should be the most recent date for that product from saved entries if available; otherwise today's date
+
     const dateModified = store.lastModified[product] || todayStr;
-    
-    // Status rules based on net:
+
     let status = "";
     let statusColor = "";
     if (net === 0) {
@@ -750,9 +842,10 @@ app.get("/api/dashboard", (req, res) => {
       status = "Yippee";
       statusColor = "green";
     }
-    
+
     byProduct[product] = {
-      product,
+      product: displayName,
+      displayName,
       dateModified,
       planned,
       produced,
