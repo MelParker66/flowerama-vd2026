@@ -716,16 +716,89 @@ function addHistoryEvent({ type, action, product, date, ts, notes, area, qty }) 
   store.history.push(newEvent);
 }
 
-// Helper function to calculate totals by product from entries
-function calculateTotalsByProduct(entries) {
+/** Only count activity rows whose product string matches a key in products.json (ignores orphan / stale names). */
+function calculateTotalsByProductForCatalog(entries, allProductsData) {
+  const catalogKeys = new Set(Object.keys(allProductsData));
   const totals = {};
-  entries.forEach(entry => {
-    if (!totals[entry.product]) {
-      totals[entry.product] = 0;
-    }
-    totals[entry.product] += entry.qty || 0;
+  entries.forEach((entry) => {
+    const name = entry.product;
+    if (!name || !catalogKeys.has(name)) return;
+    if (!totals[name]) totals[name] = 0;
+    totals[name] += entry.qty || 0;
   });
   return totals;
+}
+
+/**
+ * Dashboard/summary: product rows come ONLY from loadProducts() (products.json) — no ghost SKUs from old activity.
+ * Planned, active, displayName, dateModified are read from that file on every request.
+ * Produced / sent / sold counts aggregate in-memory entry arrays, but only rows whose product matches a key in products.json (orphan activity is ignored).
+ */
+function buildDashboardPayload() {
+  const byProduct = {};
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+  const allProductsData = loadProducts();
+
+  const producedTotals = calculateTotalsByProductForCatalog(store.produced, allProductsData);
+  const sentToShopTotals = calculateTotalsByProductForCatalog(store.sentToShop, allProductsData);
+  const soldTotals = calculateTotalsByProductForCatalog(store.sold, allProductsData);
+
+  const activeProducts = Object.keys(allProductsData)
+    .filter((product) => {
+      const productData = allProductsData[product];
+      return !productData || productData.active !== false;
+    })
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+  activeProducts.forEach((product) => {
+    const displayName = allProductsData[product]?.displayName || product;
+    const planned = allProductsData[product]?.planned ?? 0;
+    const produced = producedTotals[product] || 0;
+    const sentToShop = sentToShopTotals[product] || 0;
+    const sold = soldTotals[product] || 0;
+    const net = produced - sentToShop - sold;
+    const aheadBehind = produced - planned;
+    const dateModified = allProductsData[product]?.dateModified || todayStr;
+
+    let status = "";
+    let statusColor = "";
+    if (net === 0) {
+      status = "Doing great";
+      statusColor = "yellow";
+    } else if (net < 0) {
+      status = "Just a little more";
+      statusColor = "red";
+    } else {
+      status = "Yippee";
+      statusColor = "green";
+    }
+
+    byProduct[product] = {
+      product: displayName,
+      displayName,
+      dateModified,
+      planned,
+      produced,
+      sentToShop,
+      sold,
+      net,
+      aheadBehind,
+      status,
+      statusColor,
+    };
+  });
+
+  const totals = {
+    planned: Object.values(byProduct).reduce((sum, p) => sum + p.planned, 0),
+    produced: Object.values(byProduct).reduce((sum, p) => sum + p.produced, 0),
+    sentToShop: Object.values(byProduct).reduce((sum, p) => sum + p.sentToShop, 0),
+    sold: Object.values(byProduct).reduce((sum, p) => sum + p.sold, 0),
+    net: Object.values(byProduct).reduce((sum, p) => sum + p.net, 0),
+  };
+
+  return { ok: true, totals, byProduct };
 }
 
 // GET endpoints for individual entry types
@@ -782,201 +855,14 @@ app.get("/api/history", (req, res) => {
   res.json({ ok: true, history: filtered });
 });
 
-// Dashboard GET - computes from store (only active products)
+// Dashboard GET — catalog from loadProducts() only; see buildDashboardPayload()
 app.get("/api/dashboard", (req, res) => {
-  const byProduct = {};
-  
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  
-  // Spreadsheet values from products.json
-  const allProductsData = loadProducts();
-  
-  // Calculate totals from entries
-  const producedTotals = calculateTotalsByProduct(store.produced);
-  const sentToShopTotals = calculateTotalsByProduct(store.sentToShop);
-  const soldTotals = calculateTotalsByProduct(store.sold);
-  
-  // FIX: Start from ALL active products (not just those with activity)
-  // This ensures new products appear immediately, even with zero activity
-  const allActiveProducts = Object.keys(allProductsData).filter(product => {
-    const productData = allProductsData[product];
-    return !productData || productData.active !== false;
-  });
-  
-  // Also include any products from activity that might not be in allProductsData yet
-  const activityProducts = new Set([
-    ...Object.keys(producedTotals),
-    ...Object.keys(sentToShopTotals),
-    ...Object.keys(soldTotals)
-  ]);
-  
-  // Union: all active products + any products from activity (filtered to active)
-  const allProducts = new Set([
-    ...allActiveProducts,
-    ...Array.from(activityProducts).filter(product => {
-      const productData = allProductsData[product];
-      return !productData || productData.active !== false;
-    })
-  ]);
-  
-  const activeProducts = Array.from(allProducts);
-  
-  activeProducts.forEach((product) => {
-    const displayName = allProductsData[product]?.displayName || product;
-
-    const planned = allProductsData[product]?.planned ?? 0;
-
-    const produced = producedTotals[product] || 0;
-    const sentToShop = sentToShopTotals[product] || 0;
-    const sold = soldTotals[product] || 0;
-
-    const net = produced - sentToShop - sold;
-    const aheadBehind = produced - planned;
-
-    const dateModified = store.lastModified[product] || todayStr;
-
-    let status = "";
-    let statusColor = "";
-    if (net === 0) {
-      status = "Doing great";
-      statusColor = "yellow";
-    } else if (net < 0) {
-      status = "Just a little more";
-      statusColor = "red";
-    } else {
-      status = "Yippee";
-      statusColor = "green";
-    }
-
-    byProduct[product] = {
-      product: displayName,
-      displayName,
-      dateModified,
-      planned,
-      produced,
-      sentToShop,
-      sold,
-      net,
-      aheadBehind,
-      status,
-      statusColor
-    };
-  });
-  
-  // Calculate totals:
-  const totals = {
-    planned: Object.values(byProduct).reduce((sum, p) => sum + p.planned, 0),
-    produced: Object.values(byProduct).reduce((sum, p) => sum + p.produced, 0),
-    sentToShop: Object.values(byProduct).reduce((sum, p) => sum + p.sentToShop, 0),
-    sold: Object.values(byProduct).reduce((sum, p) => sum + p.sold, 0),
-    net: Object.values(byProduct).reduce((sum, p) => sum + p.net, 0)
-  };
-  
-  res.json({
-    ok: true,
-    totals,
-    byProduct
-  });
+  res.json(buildDashboardPayload());
 });
 
-// Summary GET - same as dashboard (for frontend compatibility) - only active products
+// Summary GET — identical payload to /api/dashboard
 app.get("/api/summary", (req, res) => {
-  // Redirect to dashboard endpoint for consistency
-  const byProduct = {};
-  
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  
-  // Get merged planned (Excel + overrides) - only active products
-  const mergedPlanned = getMergedPlanned(false);
-  
-  // Get all products to check active status - START FROM ALL ACTIVE PRODUCTS
-  const allProductsData = getAllProducts();
-  
-  // Calculate totals from entries
-  const producedTotals = calculateTotalsByProduct(store.produced);
-  const sentToShopTotals = calculateTotalsByProduct(store.sentToShop);
-  const soldTotals = calculateTotalsByProduct(store.sold);
-  
-  // FIX: Start from ALL active products (not just those with activity)
-  // This ensures new products appear immediately, even with zero activity
-  const allActiveProducts = Object.keys(allProductsData).filter(product => {
-    const productData = allProductsData[product];
-    return !productData || productData.active !== false;
-  });
-  
-  // Also include any products from activity that might not be in allProductsData yet
-  const activityProducts = new Set([
-    ...Object.keys(producedTotals),
-    ...Object.keys(sentToShopTotals),
-    ...Object.keys(soldTotals)
-  ]);
-  
-  // Union: all active products + any products from activity (filtered to active)
-  const allProducts = new Set([
-    ...allActiveProducts,
-    ...Array.from(activityProducts).filter(product => {
-      const productData = allProductsData[product];
-      return !productData || productData.active !== false;
-    })
-  ]);
-  
-  const activeProducts = Array.from(allProducts);
-  
-  activeProducts.forEach((product) => {
-    const planned = mergedPlanned[product] || 0;
-    const produced = producedTotals[product] || 0;
-    const sentToShop = sentToShopTotals[product] || 0;
-    const sold = soldTotals[product] || 0;
-    const net = produced - sentToShop - sold;
-    const aheadBehind = produced - planned;
-    const dateModified = store.lastModified[product] || todayStr;
-    
-    // Status rules based on net:
-    let status = "";
-    let statusColor = "";
-    if (net === 0) {
-      status = "Doing great";
-      statusColor = "yellow";
-    } else if (net < 0) {
-      status = "Just a little more";
-      statusColor = "red";
-    } else {
-      status = "Yippee";
-      statusColor = "green";
-    }
-    
-    byProduct[product] = {
-      product,
-      dateModified,
-      planned,
-      produced,
-      sentToShop,
-      sold,
-      net,
-      aheadBehind,
-      status,
-      statusColor
-    };
-  });
-  
-  // Calculate totals
-  const totals = {
-    planned: Object.values(byProduct).reduce((sum, p) => sum + p.planned, 0),
-    produced: Object.values(byProduct).reduce((sum, p) => sum + p.produced, 0),
-    sentToShop: Object.values(byProduct).reduce((sum, p) => sum + p.sentToShop, 0),
-    sold: Object.values(byProduct).reduce((sum, p) => sum + p.sold, 0),
-    net: Object.values(byProduct).reduce((sum, p) => sum + p.net, 0)
-  };
-  
-  res.json({
-    ok: true,
-    totals,
-    byProduct
-  });
+  res.json(buildDashboardPayload());
 });
 
 // Start server
