@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchAllProducts, deactivateProduct, reactivateProduct, saveAllProducts, uploadProducts, deleteProduct } from "../api/api";
+import { deactivateProduct, reactivateProduct, saveAllProducts, uploadProducts, deleteProduct } from "../api/api";
 import { useData } from "../context/DataContext";
 
 const CORRECT_PIN = "1232";
@@ -50,13 +50,19 @@ export default function ManageProducts() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchAllProducts();
-      // Sort alphabetically by product name
-      const sorted = data.sort((a, b) => 
-        a.product.localeCompare(b.product, undefined, { sensitivity: 'base' })
+      const data = await refreshAll();
+      if (!data?.ok) {
+        throw new Error(data?.error || "Failed to load catalog");
+      }
+      const sorted = (data.catalog || []).map((c) => ({
+        product: c.product,
+        planned: c.planned ?? 0,
+        active: c.active !== false,
+      })).sort((a, b) =>
+        a.product.localeCompare(b.product, undefined, { sensitivity: "base" })
       );
       setProducts(sorted);
-      setHasUnsavedChanges(false); // Reset unsaved changes when loading fresh data
+      setHasUnsavedChanges(false);
     } catch (err) {
       console.error("Failed to load products:", err);
       setError(err.message || "Failed to load products");

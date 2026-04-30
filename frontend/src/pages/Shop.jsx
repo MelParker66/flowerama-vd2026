@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { saveSoldEntry, fetchPlannedProducts } from "../api/api";
+import { useState, useMemo } from "react";
+import { saveSoldEntry } from "../api/api";
 import { useData } from "../context/DataContext";
 
 function todayISO() {
@@ -15,15 +15,15 @@ export default function Shop() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [availableProducts, setAvailableProducts] = useState([]);
-  const { refreshSummary } = useData();
-  
-  // Load available products for dropdown
-  useEffect(() => {
-    fetchPlannedProducts()
-      .then(products => setAvailableProducts(products))
-      .catch(err => console.warn("Failed to fetch products:", err));
-  }, []);
+  const { catalog, refreshSummary } = useData();
+  const availableProducts = useMemo(
+    () =>
+      catalog
+        .filter((c) => c.active !== false)
+        .map((c) => c.product)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [catalog]
+  );
 
   async function handleSubmit(e) {
     e.preventDefault();

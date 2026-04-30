@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { saveWarehouseEntry, savePlannedEntry, fetchPlannedProducts } from "../api/api";
+import { useState, useMemo } from "react";
+import { saveWarehouseEntry, savePlannedEntry } from "../api/api";
 import { useData } from "../context/DataContext";
 
 function todayISO() {
@@ -15,21 +15,21 @@ export default function Warehouse() {
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState("");
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [availableProducts, setAvailableProducts] = useState([]);
-  const { refreshAll } = useData();
+  const { catalog, refreshAll } = useData();
+  const availableProducts = useMemo(
+    () =>
+      catalog
+        .filter((c) => c.active !== false)
+        .map((c) => c.product)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
+    [catalog]
+  );
   
   // Planned form state
   const [plannedProduct, setPlannedProduct] = useState("");
   const [plannedQuantity, setPlannedQuantity] = useState("");
   const [plannedMessage, setPlannedMessage] = useState({ type: "", text: "" });
   
-  // Load available products for dropdown
-  useEffect(() => {
-    fetchPlannedProducts()
-      .then(products => setAvailableProducts(products))
-      .catch(err => console.warn("Failed to fetch products:", err));
-  }, []);
-
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage({ type: "", text: "" });
@@ -89,11 +89,7 @@ export default function Warehouse() {
       setPlannedProduct("");
       setPlannedQuantity("");
       
-      // Refresh available products list
-      const products = await fetchPlannedProducts();
-      setAvailableProducts(products);
-      
-      // refreshAll() triggers dashboard refresh after planned update
+      // refreshAll() updates catalog from GET /api/dashboard
       await refreshAll();
       
       // Dispatch global refresh event

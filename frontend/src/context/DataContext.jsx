@@ -4,6 +4,7 @@ const DataContext = createContext();
 
 export function DataProvider({ children }) {
   const [summaryData, setSummaryData] = useState({ totals: {}, byProduct: {} });
+  const [catalog, setCatalog] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -22,10 +23,13 @@ export function DataProvider({ children }) {
           totals: data.totals || {},
           byProduct: data.byProduct || {}
         });
+        setCatalog(Array.isArray(data.catalog) ? data.catalog : []);
       }
+      return data;
     } catch (err) {
       console.warn("Failed to fetch dashboard:", err);
       setError(err.message);
+      return { ok: false };
     } finally {
       setLoading(false);
     }
@@ -33,8 +37,7 @@ export function DataProvider({ children }) {
 
   // refreshAll() - refreshes dashboard data (called after product create/deactivate/planned updates)
   const refreshAll = async () => {
-    // refreshAll() triggers dashboard refresh
-    await refreshSummary();
+    return refreshSummary();
   };
 
   useEffect(() => {
@@ -50,7 +53,7 @@ export function DataProvider({ children }) {
   }, []);
 
   return (
-    <DataContext.Provider value={{ summaryData, refreshSummary, refreshAll, loading, error }}>
+    <DataContext.Provider value={{ summaryData, catalog, refreshSummary, refreshAll, loading, error }}>
       {children}
     </DataContext.Provider>
   );

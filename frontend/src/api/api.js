@@ -158,31 +158,7 @@ export async function fetchDashboardSummary() {
   return response.json();
 }
 
-// Planned API - returns only active products
-export async function fetchPlannedProducts() {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  const response = await fetch(`${baseUrl}/api/planned`);
-  
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-  
-  const data = await response.json();
-  return Object.keys(data.plannedByProduct || {});
-}
-
-// Products API
-export async function fetchAllProducts() {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-  const response = await fetch(`${baseUrl}/api/products`);
-  
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-  
-  const data = await response.json();
-  return data.products || [];
-}
+// Products API (mutations — catalog list comes from GET /api/dashboard via DataContext.catalog)
 
 export async function deactivateProduct(productName) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
@@ -203,7 +179,8 @@ export async function deactivateProduct(productName) {
 }
 
 export async function deleteProduct(productName) {
-  const response = await fetch(`/api/products/${encodeURIComponent(productName)}`, {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+  const response = await fetch(`${baseUrl}/api/products/${encodeURIComponent(productName)}`, {
     method: "DELETE"
   });
   const data = await response.json().catch(() => ({}));
