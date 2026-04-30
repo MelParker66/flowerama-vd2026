@@ -638,7 +638,10 @@ app.post("/api/upload-products", upload.single("file"), (req, res) => {
     const productCol = 0;
     const plannedCol = 1;
 
-    // Build a completely fresh product list from the spreadsheet
+    const uploadDateStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
+
+    // Full replace: spreadsheet is the only source. Do not merge with loadProducts().
+    // saveProducts() overwrites products.json entirely — anything not in the sheet is removed.
     const productsObject = {};
 
     rowsAsArrays.forEach((row) => {
@@ -661,10 +664,14 @@ app.post("/api/upload-products", upload.single("file"), (req, res) => {
       productsObject[norm].planned += planned;
     });
 
-    // Convert to standard schema: { [displayName]: { planned, active } }
+    // Replace entire catalog — only rows from this spreadsheet (planned summed per normalized name).
     const toSave = {};
     Object.values(productsObject).forEach((p) => {
-      toSave[p.displayName] = { planned: p.planned, active: p.active };
+      toSave[p.displayName] = {
+        planned: p.planned,
+        active: true,
+        dateModified: uploadDateStr
+      };
     });
 
     const count = Object.keys(toSave).length;
