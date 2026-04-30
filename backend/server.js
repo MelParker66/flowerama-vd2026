@@ -798,7 +798,19 @@ function buildDashboardPayload() {
     net: Object.values(byProduct).reduce((sum, p) => sum + p.net, 0),
   };
 
-  return { ok: true, totals, byProduct };
+  const catalog = Object.keys(allProductsData)
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+    .map((key) => {
+      const row = allProductsData[key] || {};
+      return {
+        product: key,
+        planned: row.planned ?? 0,
+        active: row.active !== false,
+        displayName: row.displayName || key,
+      };
+    });
+
+  return { ok: true, totals, byProduct, catalog };
 }
 
 // GET endpoints for individual entry types
